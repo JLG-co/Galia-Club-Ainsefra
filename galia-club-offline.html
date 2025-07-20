@@ -1,0 +1,1261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galia Club Ain Sefra - Karate Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom animations and styles */
+        .animate-spin {
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .modal-overlay {
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal-content {
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateY(-50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-primary {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        .btn-primary:hover:before {
+            left: 100%;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-red-800 to-red-600 text-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center">
+                        <span class="text-red-800 font-bold text-xl">G</span>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold">Galia Club Ain Sefra</h1>
+                        <p class="text-red-100 text-sm">Karate Club Management System - Offline Mode</p>
+                    </div>
+                </div>
+            </div>
+            <nav class="mt-4">
+                <div class="flex space-x-1">
+                    <button onclick="showTab('dashboard')" id="tab-dashboard" class="px-6 py-3 rounded-lg font-medium transition-all bg-white text-red-800 shadow-md">
+                        Dashboard
+                    </button>
+                    <button onclick="showTab('athletes')" id="tab-athletes" class="px-6 py-3 rounded-lg font-medium transition-all text-red-100 hover:text-white hover:bg-red-700">
+                        Athletes
+                    </button>
+                    <button onclick="showTab('coaches')" id="tab-coaches" class="px-6 py-3 rounded-lg font-medium transition-all text-red-100 hover:text-white hover:bg-red-700">
+                        Coaches
+                    </button>
+                    <button onclick="showTab('groups')" id="tab-groups" class="px-6 py-3 rounded-lg font-medium transition-all text-red-100 hover:text-white hover:bg-red-700">
+                        Groups
+                    </button>
+                    <button onclick="showTab('payments')" id="tab-payments" class="px-6 py-3 rounded-lg font-medium transition-all text-red-100 hover:text-white hover:bg-red-700">
+                        Payments
+                    </button>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Dashboard Tab -->
+        <div id="content-dashboard" class="tab-content">
+            <div class="space-y-6">
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-blue-500 stats-card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-blue-100 rounded-full">
+                                <svg class="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Total Athletes</p>
+                                <p class="text-2xl font-semibold text-gray-900" id="stat-total-athletes">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-green-500 stats-card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-green-100 rounded-full">
+                                <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Active Athletes</p>
+                                <p class="text-2xl font-semibold text-gray-900" id="stat-active-athletes">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-purple-500 stats-card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-purple-100 rounded-full">
+                                <svg class="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Coaches</p>
+                                <p class="text-2xl font-semibold text-gray-900" id="stat-total-coaches">0</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg border-l-4 border-orange-500 stats-card">
+                        <div class="flex items-center">
+                            <div class="p-3 bg-orange-100 rounded-full">
+                                <svg class="w-8 h-8 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                            </div>
+                            <div class="ml-4">
+                                <p class="text-sm font-medium text-gray-600">Groups</p>
+                                <p class="text-2xl font-semibold text-gray-900" id="stat-total-groups">0</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment and Revenue Overview -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Payment Status</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                                <span class="text-yellow-800 font-medium">Pending Payments</span>
+                                <span class="text-2xl font-bold text-yellow-800" id="stat-pending-payments">0</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-red-50 rounded-lg">
+                                <span class="text-red-800 font-medium">Overdue Payments</span>
+                                <span class="text-2xl font-bold text-red-800" id="stat-overdue-payments">0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-xl shadow-lg">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Revenue Overview</h3>
+                        <div class="space-y-3">
+                            <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                <span class="text-green-800 font-medium">Monthly Revenue</span>
+                                <span class="text-xl font-bold text-green-800" id="stat-monthly-revenue">0 DZD</span>
+                            </div>
+                            <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                <span class="text-blue-800 font-medium">License Revenue</span>
+                                <span class="text-xl font-bold text-blue-800" id="stat-license-revenue">0 DZD</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Welcome Section -->
+                <div class="bg-gradient-to-r from-red-800 to-red-600 text-white p-8 rounded-xl">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                        <div>
+                            <h2 class="text-3xl font-bold mb-4">Welcome to Galia Club Ain Sefra</h2>
+                            <p class="text-red-100 text-lg mb-6">
+                                Professional karate club management system to organize athletes, track payments, 
+                                and manage training groups efficiently. Now available offline!
+                            </p>
+                            <div class="flex space-x-4">
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold" id="welcome-active-athletes">0</div>
+                                    <div class="text-red-200 text-sm">Active Athletes</div>
+                                </div>
+                                <div class="text-center">
+                                    <div class="text-2xl font-bold" id="welcome-total-coaches">0</div>
+                                    <div class="text-red-200 text-sm">Expert Coaches</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex justify-center">
+                            <img src="https://images.unsplash.com/photo-1525198104776-f6e8a873f9b7?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2NzF8MHwxfHNlYXJjaHwxfHxrYXJhdGV8ZW58MHx8fHwxNzUzMDE4MTIzfDA&ixlib=rb-4.1.0&q=85" alt="Karate Training" class="w-64 h-48 object-cover rounded-lg shadow-lg">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Athletes Tab -->
+        <div id="content-athletes" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Athletes Management</h2>
+                <button onclick="showAthleteForm()" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center space-x-2 btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Add Athlete</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Belt Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="athletes-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Athletes will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="no-athletes" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No athletes</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by adding a new athlete to the club.</p>
+            </div>
+        </div>
+
+        <!-- Coaches Tab -->
+        <div id="content-coaches" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Coaches Management</h2>
+                <button onclick="showCoachForm()" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center space-x-2 btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Add Coach</span>
+                </button>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Belt Level</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Specialization</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Experience</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="coaches-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Coaches will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="no-coaches" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No coaches</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by adding a new coach to the club.</p>
+            </div>
+        </div>
+
+        <!-- Groups Tab -->
+        <div id="content-groups" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Groups Management</h2>
+                <button onclick="showGroupForm()" class="bg-red-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-red-700 transition-colors flex items-center space-x-2 btn-primary">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    <span>Add Group</span>
+                </button>
+            </div>
+
+            <div id="groups-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Groups will be populated here -->
+            </div>
+
+            <div id="no-groups" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No groups</h3>
+                <p class="mt-1 text-sm text-gray-500">Get started by creating a new training group.</p>
+            </div>
+        </div>
+
+        <!-- Payments Tab -->
+        <div id="content-payments" class="tab-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Payments Management</h2>
+                
+                <div class="flex space-x-2">
+                    <button onclick="filterPayments('all')" id="filter-all" class="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-red-600 text-white">
+                        All
+                    </button>
+                    <button onclick="filterPayments('pending')" id="filter-pending" class="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Pending
+                    </button>
+                    <button onclick="filterPayments('paid')" id="filter-paid" class="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Paid
+                    </button>
+                    <button onclick="filterPayments('overdue')" id="filter-overdue" class="px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300">
+                        Overdue
+                    </button>
+                </div>
+            </div>
+
+            <!-- Payment Summary Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-2xl font-bold text-gray-900" id="summary-pending">0</div>
+                    <div class="text-sm text-gray-600">Pending Payments</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-2xl font-bold text-green-600" id="summary-paid">0</div>
+                    <div class="text-sm text-gray-600">Paid Payments</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-2xl font-bold text-red-600" id="summary-overdue">0</div>
+                    <div class="text-sm text-gray-600">Overdue Payments</div>
+                </div>
+                <div class="bg-white p-4 rounded-lg shadow">
+                    <div class="text-2xl font-bold text-blue-600" id="summary-revenue">0 DZD</div>
+                    <div class="text-sm text-gray-600">Total Revenue</div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Athlete</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="payments-table-body" class="bg-white divide-y divide-gray-200">
+                            <!-- Payments will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="no-payments" class="text-center py-12 hidden">
+                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+                <h3 class="mt-2 text-sm font-medium text-gray-900">No payments found</h3>
+                <p class="mt-1 text-sm text-gray-500">No payments match the current filter criteria.</p>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modals -->
+    <!-- Athlete Form Modal -->
+    <div id="athlete-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 modal-overlay hidden">
+        <div class="bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-screen overflow-y-auto modal-content">
+            <h3 class="text-xl font-bold mb-4" id="athlete-modal-title">Add New Athlete</h3>
+            <form id="athlete-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="athlete-first-name" placeholder="First Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <input type="text" id="athlete-last-name" placeholder="Last Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="date" id="athlete-dob" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <select id="athlete-gender" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+
+                <input type="tel" id="athlete-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                <input type="tel" id="athlete-parent-phone" placeholder="Parent Phone Number" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                <textarea id="athlete-address" placeholder="Address" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" rows="3"></textarea>
+                
+                <select id="athlete-belt-level" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <option value="White">White Belt</option>
+                    <option value="Yellow">Yellow Belt</option>
+                    <option value="Orange">Orange Belt</option>
+                    <option value="Green">Green Belt</option>
+                    <option value="Blue">Blue Belt</option>
+                    <option value="Brown">Brown Belt</option>
+                    <option value="Black">Black Belt</option>
+                </select>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                        Add Athlete
+                    </button>
+                    <button type="button" onclick="hideAthleteForm()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Coach Form Modal -->
+    <div id="coach-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 modal-overlay hidden">
+        <div class="bg-white p-6 rounded-xl max-w-md w-full mx-4 modal-content">
+            <h3 class="text-xl font-bold mb-4">Add New Coach</h3>
+            <form id="coach-form" class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <input type="text" id="coach-first-name" placeholder="First Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <input type="text" id="coach-last-name" placeholder="Last Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                </div>
+
+                <input type="tel" id="coach-phone" placeholder="Phone Number" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                <input type="text" id="coach-specialization" placeholder="Specialization (e.g., Kumite, Kata)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                <input type="number" id="coach-experience" placeholder="Years of Experience" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                
+                <select id="coach-belt-level" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <option value="Black Belt 1st Dan">Black Belt 1st Dan</option>
+                    <option value="Black Belt 2nd Dan">Black Belt 2nd Dan</option>
+                    <option value="Black Belt 3rd Dan">Black Belt 3rd Dan</option>
+                    <option value="Black Belt 4th Dan">Black Belt 4th Dan</option>
+                    <option value="Black Belt 5th Dan">Black Belt 5th Dan</option>
+                    <option value="Master">Master</option>
+                </select>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                        Add Coach
+                    </button>
+                    <button type="button" onclick="hideCoachForm()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Group Form Modal -->
+    <div id="group-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 modal-overlay hidden">
+        <div class="bg-white p-6 rounded-xl max-w-md w-full mx-4 modal-content">
+            <h3 class="text-xl font-bold mb-4">Add New Group</h3>
+            <form id="group-form" class="space-y-4">
+                <input type="text" id="group-name" placeholder="Group Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                
+                <select id="group-coach" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                    <option value="">Select a Coach</option>
+                </select>
+
+                <input type="number" id="group-capacity" placeholder="Maximum Capacity" value="20" min="1" max="30" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" required>
+                <textarea id="group-schedule" placeholder="Training Schedule (e.g., Monday & Wednesday 6-8 PM)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" rows="3"></textarea>
+
+                <div class="flex space-x-3 pt-4">
+                    <button type="submit" class="flex-1 bg-red-600 text-white py-3 rounded-lg font-medium hover:bg-red-700 transition-colors">
+                        Add Group
+                    </button>
+                    <button type="button" onclick="hideGroupForm()" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+                        Cancel
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add Athlete to Group Modal -->
+    <div id="add-athlete-modal" class="fixed inset-0 bg-black bg-opacity-50 items-center justify-center z-50 modal-overlay hidden">
+        <div class="bg-white p-6 rounded-xl max-w-md w-full mx-4 max-h-96 overflow-y-auto modal-content">
+            <h3 class="text-xl font-bold mb-4" id="add-athlete-modal-title">Add Athlete to Group</h3>
+            <div id="available-athletes" class="space-y-2">
+                <!-- Available athletes will be populated here -->
+            </div>
+            <button onclick="hideAddAthleteModal()" class="w-full mt-4 bg-gray-300 text-gray-700 py-2 rounded-lg font-medium hover:bg-gray-400 transition-colors">
+                Cancel
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Data Management
+        class DataManager {
+            constructor() {
+                this.initializeData();
+            }
+
+            initializeData() {
+                if (!localStorage.getItem('athletes')) {
+                    localStorage.setItem('athletes', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('coaches')) {
+                    localStorage.setItem('coaches', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('groups')) {
+                    localStorage.setItem('groups', JSON.stringify([]));
+                }
+                if (!localStorage.getItem('payments')) {
+                    localStorage.setItem('payments', JSON.stringify([]));
+                }
+            }
+
+            generateId() {
+                return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+            }
+
+            getAthletes() {
+                return JSON.parse(localStorage.getItem('athletes') || '[]');
+            }
+
+            saveAthletes(athletes) {
+                localStorage.setItem('athletes', JSON.stringify(athletes));
+            }
+
+            getCoaches() {
+                return JSON.parse(localStorage.getItem('coaches') || '[]');
+            }
+
+            saveCoaches(coaches) {
+                localStorage.setItem('coaches', JSON.stringify(coaches));
+            }
+
+            getGroups() {
+                return JSON.parse(localStorage.getItem('groups') || '[]');
+            }
+
+            saveGroups(groups) {
+                localStorage.setItem('groups', JSON.stringify(groups));
+            }
+
+            getPayments() {
+                return JSON.parse(localStorage.getItem('payments') || '[]');
+            }
+
+            savePayments(payments) {
+                localStorage.setItem('payments', JSON.stringify(payments));
+            }
+
+            addAthlete(athleteData) {
+                const athletes = this.getAthletes();
+                const athlete = {
+                    id: this.generateId(),
+                    ...athleteData,
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                };
+                
+                athletes.push(athlete);
+                this.saveAthletes(athletes);
+
+                // Create automatic payments
+                this.createAutomaticPayments(athlete.id);
+                
+                return athlete;
+            }
+
+            createAutomaticPayments(athleteId) {
+                const payments = this.getPayments();
+                
+                // Monthly payment (500 DZD)
+                const monthlyPayment = {
+                    id: this.generateId(),
+                    athlete_id: athleteId,
+                    payment_type: 'monthly',
+                    amount: 500,
+                    currency: 'DZD',
+                    due_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                };
+
+                // Yearly license payment (300 DZD)
+                const yearlyPayment = {
+                    id: this.generateId(),
+                    athlete_id: athleteId,
+                    payment_type: 'yearly_license',
+                    amount: 300,
+                    currency: 'DZD',
+                    due_date: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString(),
+                    status: 'pending',
+                    created_at: new Date().toISOString()
+                };
+
+                payments.push(monthlyPayment, yearlyPayment);
+                this.savePayments(payments);
+            }
+
+            addCoach(coachData) {
+                const coaches = this.getCoaches();
+                const coach = {
+                    id: this.generateId(),
+                    ...coachData,
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                };
+                
+                coaches.push(coach);
+                this.saveCoaches(coaches);
+                return coach;
+            }
+
+            addGroup(groupData) {
+                const groups = this.getGroups();
+                const group = {
+                    id: this.generateId(),
+                    ...groupData,
+                    current_count: 0,
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                };
+                
+                groups.push(group);
+                this.saveGroups(groups);
+                return group;
+            }
+
+            addAthleteToGroup(groupId, athleteId) {
+                const groups = this.getGroups();
+                const athletes = this.getAthletes();
+                
+                const group = groups.find(g => g.id === groupId);
+                const athlete = athletes.find(a => a.id === athleteId);
+                
+                if (group && athlete && group.current_count < group.max_capacity) {
+                    // Update athlete's group
+                    athlete.group_id = groupId;
+                    this.saveAthletes(athletes);
+                    
+                    // Update group's count
+                    group.current_count++;
+                    this.saveGroups(groups);
+                    
+                    return true;
+                }
+                return false;
+            }
+
+            markPaymentAsPaid(paymentId) {
+                const payments = this.getPayments();
+                const payment = payments.find(p => p.id === paymentId);
+                if (payment) {
+                    payment.status = 'paid';
+                    payment.paid_date = new Date().toISOString();
+                    this.savePayments(payments);
+                    return true;
+                }
+                return false;
+            }
+
+            deactivateAthlete(athleteId) {
+                const athletes = this.getAthletes();
+                const athlete = athletes.find(a => a.id === athleteId);
+                if (athlete) {
+                    athlete.is_active = false;
+                    this.saveAthletes(athletes);
+                    return true;
+                }
+                return false;
+            }
+        }
+
+        const dataManager = new DataManager();
+
+        // UI Management
+        function showTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.add('hidden');
+            });
+
+            // Remove active class from all tab buttons
+            document.querySelectorAll('[id^="tab-"]').forEach(button => {
+                button.className = 'px-6 py-3 rounded-lg font-medium transition-all text-red-100 hover:text-white hover:bg-red-700';
+            });
+
+            // Show selected tab content
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            
+            // Add active class to selected tab button
+            document.getElementById(`tab-${tabName}`).className = 'px-6 py-3 rounded-lg font-medium transition-all bg-white text-red-800 shadow-md';
+
+            // Load data for the selected tab
+            switch(tabName) {
+                case 'dashboard':
+                    updateDashboard();
+                    break;
+                case 'athletes':
+                    loadAthletes();
+                    break;
+                case 'coaches':
+                    loadCoaches();
+                    break;
+                case 'groups':
+                    loadGroups();
+                    break;
+                case 'payments':
+                    loadPayments();
+                    break;
+            }
+        }
+
+        // Dashboard Functions
+        function updateDashboard() {
+            const athletes = dataManager.getAthletes();
+            const coaches = dataManager.getCoaches();
+            const groups = dataManager.getGroups();
+            const payments = dataManager.getPayments();
+
+            const stats = {
+                total_athletes: athletes.length,
+                active_athletes: athletes.filter(a => a.is_active).length,
+                total_coaches: coaches.filter(c => c.is_active).length,
+                total_groups: groups.filter(g => g.is_active).length,
+                pending_payments: payments.filter(p => p.status === 'pending').length,
+                overdue_payments: payments.filter(p => p.status === 'pending' && new Date(p.due_date) < new Date()).length,
+                monthly_revenue: payments.filter(p => p.payment_type === 'monthly' && p.status === 'paid').reduce((sum, p) => sum + p.amount, 0),
+                yearly_license_revenue: payments.filter(p => p.payment_type === 'yearly_license' && p.status === 'paid').reduce((sum, p) => sum + p.amount, 0)
+            };
+
+            // Update dashboard statistics
+            document.getElementById('stat-total-athletes').textContent = stats.total_athletes;
+            document.getElementById('stat-active-athletes').textContent = stats.active_athletes;
+            document.getElementById('stat-total-coaches').textContent = stats.total_coaches;
+            document.getElementById('stat-total-groups').textContent = stats.total_groups;
+            document.getElementById('stat-pending-payments').textContent = stats.pending_payments;
+            document.getElementById('stat-overdue-payments').textContent = stats.overdue_payments;
+            document.getElementById('stat-monthly-revenue').textContent = stats.monthly_revenue + ' DZD';
+            document.getElementById('stat-license-revenue').textContent = stats.yearly_license_revenue + ' DZD';
+            document.getElementById('welcome-active-athletes').textContent = stats.active_athletes;
+            document.getElementById('welcome-total-coaches').textContent = stats.total_coaches;
+        }
+
+        // Athlete Functions
+        function loadAthletes() {
+            const athletes = dataManager.getAthletes();
+            const tableBody = document.getElementById('athletes-table-body');
+            const noAthletes = document.getElementById('no-athletes');
+
+            if (athletes.length === 0) {
+                tableBody.innerHTML = '';
+                noAthletes.classList.remove('hidden');
+            } else {
+                noAthletes.classList.add('hidden');
+                tableBody.innerHTML = athletes.map(athlete => {
+                    const age = Math.floor((new Date() - new Date(athlete.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000));
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                        <span class="text-red-600 font-semibold">
+                                            ${athlete.first_name[0]}${athlete.last_name[0]}
+                                        </span>
+                                    </div>
+                                    <div class="ml-4">
+                                        <div class="text-sm font-medium text-gray-900">
+                                            ${athlete.first_name} ${athlete.last_name}
+                                        </div>
+                                        <div class="text-sm text-gray-500">${athlete.gender}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${age} years</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                    ${athlete.belt_level}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${athlete.phone || '-'}</td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    athlete.is_active 
+                                        ? 'bg-green-100 text-green-800' 
+                                        : 'bg-red-100 text-red-800'
+                                }">
+                                    ${athlete.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <div class="flex space-x-2">
+                                    <button onclick="editAthlete('${athlete.id}')" class="text-blue-600 hover:text-blue-900 transition-colors">
+                                        Edit
+                                    </button>
+                                    <button onclick="deactivateAthlete('${athlete.id}')" class="text-red-600 hover:text-red-900 transition-colors">
+                                        Deactivate
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function showAthleteForm(athleteId = null) {
+            document.getElementById('athlete-modal').classList.remove('hidden');
+            document.getElementById('athlete-modal').classList.add('flex');
+            
+            if (athleteId) {
+                const athlete = dataManager.getAthletes().find(a => a.id === athleteId);
+                if (athlete) {
+                    document.getElementById('athlete-modal-title').textContent = 'Edit Athlete';
+                    document.getElementById('athlete-first-name').value = athlete.first_name;
+                    document.getElementById('athlete-last-name').value = athlete.last_name;
+                    document.getElementById('athlete-dob').value = athlete.date_of_birth.split('T')[0];
+                    document.getElementById('athlete-gender').value = athlete.gender;
+                    document.getElementById('athlete-phone').value = athlete.phone || '';
+                    document.getElementById('athlete-parent-phone').value = athlete.parent_phone || '';
+                    document.getElementById('athlete-address').value = athlete.address || '';
+                    document.getElementById('athlete-belt-level').value = athlete.belt_level;
+                }
+            } else {
+                document.getElementById('athlete-modal-title').textContent = 'Add New Athlete';
+                document.getElementById('athlete-form').reset();
+            }
+        }
+
+        function hideAthleteForm() {
+            document.getElementById('athlete-modal').classList.add('hidden');
+            document.getElementById('athlete-modal').classList.remove('flex');
+            document.getElementById('athlete-form').reset();
+        }
+
+        function deactivateAthlete(athleteId) {
+            if (confirm('Are you sure you want to deactivate this athlete?')) {
+                dataManager.deactivateAthlete(athleteId);
+                loadAthletes();
+                updateDashboard();
+            }
+        }
+
+        // Coach Functions
+        function loadCoaches() {
+            const coaches = dataManager.getCoaches();
+            const tableBody = document.getElementById('coaches-table-body');
+            const noCoaches = document.getElementById('no-coaches');
+
+            if (coaches.length === 0) {
+                tableBody.innerHTML = '';
+                noCoaches.classList.remove('hidden');
+            } else {
+                noCoaches.classList.add('hidden');
+                tableBody.innerHTML = coaches.map(coach => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center">
+                                    <span class="text-purple-600 font-semibold">
+                                        ${coach.first_name[0]}${coach.last_name[0]}
+                                    </span>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        ${coach.first_name} ${coach.last_name}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${coach.phone}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                ${coach.belt_level}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${coach.specialization || '-'}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${coach.experience_years ? `${coach.experience_years} years` : '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                coach.is_active 
+                                    ? 'bg-green-100 text-green-800' 
+                                    : 'bg-red-100 text-red-800'
+                            }">
+                                ${coach.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        function showCoachForm() {
+            document.getElementById('coach-modal').classList.remove('hidden');
+            document.getElementById('coach-modal').classList.add('flex');
+        }
+
+        function hideCoachForm() {
+            document.getElementById('coach-modal').classList.add('hidden');
+            document.getElementById('coach-modal').classList.remove('flex');
+            document.getElementById('coach-form').reset();
+        }
+
+        // Group Functions
+        function loadGroups() {
+            const groups = dataManager.getGroups();
+            const coaches = dataManager.getCoaches();
+            const container = document.getElementById('groups-container');
+            const noGroups = document.getElementById('no-groups');
+
+            if (groups.length === 0) {
+                container.innerHTML = '';
+                noGroups.classList.remove('hidden');
+            } else {
+                noGroups.classList.add('hidden');
+                container.innerHTML = groups.map(group => {
+                    const coach = coaches.find(c => c.id === group.coach_id);
+                    const coachName = coach ? `${coach.first_name} ${coach.last_name}` : 'Unknown Coach';
+                    const capacityPercentage = (group.current_count / group.max_capacity) * 100;
+                    
+                    return `
+                        <div class="bg-white rounded-xl shadow-lg p-6 border-t-4 border-orange-500">
+                            <div class="flex justify-between items-start mb-4">
+                                <h3 class="text-xl font-semibold text-gray-900">${group.name}</h3>
+                                <span class="px-2 py-1 text-xs rounded-full ${
+                                    group.is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                                }">
+                                    ${group.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+
+                            <div class="space-y-3">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                    </svg>
+                                    <span class="font-medium">Coach:</span> ${coachName}
+                                </div>
+
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                                    </svg>
+                                    <span class="font-medium">Capacity:</span> ${group.current_count}/${group.max_capacity}
+                                </div>
+
+                                ${group.schedule ? `
+                                <div class="flex items-start text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span class="font-medium">Schedule:</span> ${group.schedule}
+                                </div>
+                                ` : ''}
+
+                                <div class="mt-4">
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="bg-orange-500 h-2 rounded-full transition-all duration-300" style="width: ${capacityPercentage}%"></div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        ${group.max_capacity - group.current_count} spots available
+                                    </p>
+                                </div>
+
+                                ${group.current_count < group.max_capacity ? `
+                                <button onclick="showAddAthleteModal('${group.id}', '${group.name}')" class="w-full mt-4 bg-orange-600 text-white py-2 px-4 rounded-lg text-sm font-medium hover:bg-orange-700 transition-colors">
+                                    Add Athlete
+                                </button>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function showGroupForm() {
+            const coaches = dataManager.getCoaches();
+            const coachSelect = document.getElementById('group-coach');
+            
+            coachSelect.innerHTML = '<option value="">Select a Coach</option>';
+            coaches.forEach(coach => {
+                coachSelect.innerHTML += `<option value="${coach.id}">${coach.first_name} ${coach.last_name} - ${coach.belt_level}</option>`;
+            });
+            
+            document.getElementById('group-modal').classList.remove('hidden');
+            document.getElementById('group-modal').classList.add('flex');
+        }
+
+        function hideGroupForm() {
+            document.getElementById('group-modal').classList.add('hidden');
+            document.getElementById('group-modal').classList.remove('flex');
+            document.getElementById('group-form').reset();
+        }
+
+        function showAddAthleteModal(groupId, groupName) {
+            const athletes = dataManager.getAthletes();
+            const availableAthletes = athletes.filter(athlete => !athlete.group_id && athlete.is_active);
+            const container = document.getElementById('available-athletes');
+            const title = document.getElementById('add-athlete-modal-title');
+            
+            title.textContent = `Add Athlete to ${groupName}`;
+            
+            if (availableAthletes.length > 0) {
+                container.innerHTML = availableAthletes.map(athlete => `
+                    <div class="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 cursor-pointer" onclick="addAthleteToGroup('${groupId}', '${athlete.id}')">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center mr-3">
+                                <span class="text-blue-600 text-sm font-semibold">
+                                    ${athlete.first_name[0]}${athlete.last_name[0]}
+                                </span>
+                            </div>
+                            <div>
+                                <p class="font-medium">${athlete.first_name} ${athlete.last_name}</p>
+                                <p class="text-sm text-gray-500">${athlete.belt_level}</p>
+                            </div>
+                        </div>
+                        <button class="text-orange-600 hover:text-orange-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                        </button>
+                    </div>
+                `).join('');
+            } else {
+                container.innerHTML = '<p class="text-gray-500 text-center py-4">No available athletes to add</p>';
+            }
+            
+            document.getElementById('add-athlete-modal').classList.remove('hidden');
+            document.getElementById('add-athlete-modal').classList.add('flex');
+        }
+
+        function hideAddAthleteModal() {
+            document.getElementById('add-athlete-modal').classList.add('hidden');
+            document.getElementById('add-athlete-modal').classList.remove('flex');
+        }
+
+        function addAthleteToGroup(groupId, athleteId) {
+            if (dataManager.addAthleteToGroup(groupId, athleteId)) {
+                hideAddAthleteModal();
+                loadGroups();
+                updateDashboard();
+                alert('Athlete added to group successfully!');
+            } else {
+                alert('Error adding athlete to group. Group may be at capacity.');
+            }
+        }
+
+        // Payment Functions
+        let currentPaymentFilter = 'all';
+
+        function loadPayments() {
+            const payments = dataManager.getPayments();
+            const athletes = dataManager.getAthletes();
+            
+            updatePaymentSummary(payments);
+            displayPayments(payments, athletes);
+        }
+
+        function updatePaymentSummary(payments) {
+            const pending = payments.filter(p => p.status === 'pending').length;
+            const paid = payments.filter(p => p.status === 'paid').length;
+            const overdue = payments.filter(p => p.status === 'pending' && new Date(p.due_date) < new Date()).length;
+            const revenue = payments.filter(p => p.status === 'paid').reduce((sum, p) => sum + p.amount, 0);
+
+            document.getElementById('summary-pending').textContent = pending;
+            document.getElementById('summary-paid').textContent = paid;
+            document.getElementById('summary-overdue').textContent = overdue;
+            document.getElementById('summary-revenue').textContent = revenue + ' DZD';
+        }
+
+        function displayPayments(payments, athletes) {
+            const filteredPayments = filterPaymentsByStatus(payments, currentPaymentFilter);
+            const tableBody = document.getElementById('payments-table-body');
+            const noPayments = document.getElementById('no-payments');
+
+            if (filteredPayments.length === 0) {
+                tableBody.innerHTML = '';
+                noPayments.classList.remove('hidden');
+            } else {
+                noPayments.classList.add('hidden');
+                tableBody.innerHTML = filteredPayments.map(payment => {
+                    const athlete = athletes.find(a => a.id === payment.athlete_id);
+                    const athleteName = athlete ? `${athlete.first_name} ${athlete.last_name}` : 'Unknown Athlete';
+                    const isOverdue = payment.status === 'pending' && new Date(payment.due_date) < new Date();
+                    
+                    return `
+                        <tr class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="text-sm font-medium text-gray-900">${athleteName}</div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    payment.payment_type === 'monthly' 
+                                        ? 'bg-blue-100 text-blue-800' 
+                                        : 'bg-purple-100 text-purple-800'
+                                }">
+                                    ${payment.payment_type === 'monthly' ? 'Monthly Membership' : 'Yearly License'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${payment.amount} ${payment.currency}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                                ${new Date(payment.due_date).toLocaleDateString()}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                    payment.status === 'paid' 
+                                        ? 'bg-green-100 text-green-800'
+                                        : isOverdue 
+                                            ? 'bg-red-100 text-red-800'
+                                            : 'bg-yellow-100 text-yellow-800'
+                                }">
+                                    ${payment.status === 'paid' ? 'Paid' : isOverdue ? 'Overdue' : 'Pending'}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                ${payment.status === 'pending' ? `
+                                    <button onclick="markPaymentAsPaid('${payment.id}')" class="text-green-600 hover:text-green-900 transition-colors">
+                                        Mark as Paid
+                                    </button>
+                                ` : payment.paid_date ? `
+                                    <span class="text-gray-500 text-xs">
+                                        Paid on ${new Date(payment.paid_date).toLocaleDateString()}
+                                    </span>
+                                ` : ''}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+            }
+        }
+
+        function filterPaymentsByStatus(payments, filter) {
+            switch(filter) {
+                case 'pending':
+                    return payments.filter(p => p.status === 'pending');
+                case 'paid':
+                    return payments.filter(p => p.status === 'paid');
+                case 'overdue':
+                    return payments.filter(p => p.status === 'pending' && new Date(p.due_date) < new Date());
+                default:
+                    return payments;
+            }
+        }
+
+        function filterPayments(filter) {
+            currentPaymentFilter = filter;
+            
+            // Update filter button styles
+            document.querySelectorAll('[id^="filter-"]').forEach(button => {
+                button.className = 'px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300';
+            });
+            document.getElementById(`filter-${filter}`).className = 'px-4 py-2 rounded-lg text-sm font-medium capitalize transition-colors bg-red-600 text-white';
+            
+            loadPayments();
+        }
+
+        function markPaymentAsPaid(paymentId) {
+            if (dataManager.markPaymentAsPaid(paymentId)) {
+                loadPayments();
+                updateDashboard();
+            }
+        }
+
+        // Form Event Listeners
+        document.getElementById('athlete-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const athleteData = {
+                first_name: document.getElementById('athlete-first-name').value,
+                last_name: document.getElementById('athlete-last-name').value,
+                date_of_birth: document.getElementById('athlete-dob').value,
+                gender: document.getElementById('athlete-gender').value,
+                phone: document.getElementById('athlete-phone').value,
+                parent_phone: document.getElementById('athlete-parent-phone').value,
+                address: document.getElementById('athlete-address').value,
+                belt_level: document.getElementById('athlete-belt-level').value
+            };
+            
+            dataManager.addAthlete(athleteData);
+            hideAthleteForm();
+            loadAthletes();
+            updateDashboard();
+        });
+
+        document.getElementById('coach-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const coachData = {
+                first_name: document.getElementById('coach-first-name').value,
+                last_name: document.getElementById('coach-last-name').value,
+                phone: document.getElementById('coach-phone').value,
+                specialization: document.getElementById('coach-specialization').value,
+                experience_years: parseInt(document.getElementById('coach-experience').value) || null,
+                belt_level: document.getElementById('coach-belt-level').value
+            };
+            
+            dataManager.addCoach(coachData);
+            hideCoachForm();
+            loadCoaches();
+            updateDashboard();
+        });
+
+        document.getElementById('group-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const groupData = {
+                name: document.getElementById('group-name').value,
+                coach_id: document.getElementById('group-coach').value,
+                max_capacity: parseInt(document.getElementById('group-capacity').value),
+                schedule: document.getElementById('group-schedule').value
+            };
+            
+            dataManager.addGroup(groupData);
+            hideGroupForm();
+            loadGroups();
+            updateDashboard();
+        });
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            updateDashboard();
+        });
+    </script>
+</body>
+</html>
