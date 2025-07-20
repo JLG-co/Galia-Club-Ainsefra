@@ -953,6 +953,12 @@
                 const category = calculateCategory(athlete.date_of_birth);
                 const birthDate = new Date(athlete.date_of_birth);
                 
+                // Format birthdate as YYYY-MM-DD
+                const year = birthDate.getFullYear();
+                const month = String(birthDate.getMonth() + 1).padStart(2, '0');
+                const day = String(birthDate.getDate()).padStart(2, '0');
+                const formattedBirthdate = `${year}-${month}-${day}`;
+                
                 return [
                     'GALIA CLUB AIN SEFRA',           // Club Full Name
                     'GALIA CLUB',                      // Club Short Name
@@ -960,7 +966,7 @@
                     athlete.first_name,                // First Name
                     athlete.last_name,                 // Last Name
                     athlete.gender === 'male' ? 'M' : 'F',  // Sex
-                    birthDate.toLocaleDateString('en-US'), // Birthdate
+                    formattedBirthdate,                // Birthdate (YYYY-MM-DD)
                     category                           // Category Name
                 ];
             });
