@@ -949,25 +949,25 @@
             }
 
             // Prepare data for Excel export - exact format from your image
-            const exportData = athletes.map((athlete, index) => {
+            const exportData = athletes.map((athlete) => {
                 const category = calculateCategory(athlete.date_of_birth);
                 const birthDate = new Date(athlete.date_of_birth);
-                const birthYear = birthDate.getFullYear();
                 
                 return [
-                    athlete.last_name.toUpperCase(),
-                    athlete.first_name,
-                    athlete.gender === 'male' ? 'M' : 'F',
-                    birthDate.toLocaleDateString('fr-FR'),
-                    birthYear,
-                    category,
-                    athlete.belt_level
+                    'GALIA CLUB AIN SEFRA',           // Club Full Name
+                    'GALIA CLUB',                      // Club Short Name
+                    'Algeria',                         // Country
+                    athlete.first_name,                // First Name
+                    athlete.last_name,                 // Last Name
+                    athlete.gender === 'male' ? 'M' : 'F',  // Sex
+                    birthDate.toLocaleDateString('en-US'), // Birthdate
+                    category                           // Category Name
                 ];
             });
 
-            // Add header row
+            // Add header row - exact English headers from your image
             const headerData = [
-                ['NOM', 'PRENOM', 'SEXE', 'DATE NAISSANCE', 'ANNEE', 'CATEGORIE', 'GRADE'],
+                ['Club Full Name', 'Club Short Name', 'Country', 'First Name', 'Last Name', 'Sex', 'Birthdate', 'Category Name'],
                 ...exportData
             ];
 
@@ -977,13 +977,14 @@
 
             // Set column widths to match your format
             const colWidths = [
-                { wch: 20 }, // NOM
-                { wch: 15 }, // PRENOM
-                { wch: 6 },  // SEXE
-                { wch: 15 }, // DATE NAISSANCE
-                { wch: 8 },  // ANNEE
-                { wch: 15 }, // CATEGORIE
-                { wch: 15 }  // GRADE
+                { wch: 25 }, // Club Full Name
+                { wch: 15 }, // Club Short Name
+                { wch: 12 }, // Country
+                { wch: 15 }, // First Name
+                { wch: 15 }, // Last Name
+                { wch: 6 },  // Sex
+                { wch: 12 }, // Birthdate
+                { wch: 15 }  // Category Name
             ];
             ws['!cols'] = colWidths;
 
@@ -1002,8 +1003,11 @@
             XLSX.utils.book_append_sheet(wb, ws, 'Athletes');
 
             // Generate filename with current date
-            const today = new Date().toISOString().split('T')[0];
-            const filename = `Athletes_${today}.xlsx`;
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const filename = `Athletes_${year}-${month}-${day}.xlsx`;
 
             // Save the file
             XLSX.writeFile(wb, filename);
