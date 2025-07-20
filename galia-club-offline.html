@@ -948,61 +948,62 @@
                 return;
             }
 
-            // Prepare data for Excel export
+            // Prepare data for Excel export - exact format from your image
             const exportData = athletes.map((athlete, index) => {
                 const category = calculateCategory(athlete.date_of_birth);
-                const age = Math.floor((new Date() - new Date(athlete.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000));
-                const birthYear = new Date(athlete.date_of_birth).getFullYear();
+                const birthDate = new Date(athlete.date_of_birth);
+                const birthYear = birthDate.getFullYear();
                 
-                return {
-                    'N°': index + 1,
-                    'NOM': athlete.last_name.toUpperCase(),
-                    'PRENOM': athlete.first_name,
-                    'SEXE': athlete.gender === 'male' ? 'M' : 'F',
-                    'DATE DE NAISSANCE': new Date(athlete.date_of_birth).toLocaleDateString('fr-FR'),
-                    'ANNEE': birthYear,
-                    'AGE': age,
-                    'CATEGORIE': category,
-                    'GRADE': athlete.belt_level,
-                    'CLUB': 'GALIA CLUB AIN SEFRA',
-                    'VILLE': 'AIN SEFRA',
-                    'TELEPHONE': athlete.phone || '',
-                    'TELEPHONE PARENT': athlete.parent_phone || '',
-                    'ADRESSE': athlete.address || '',
-                    'STATUT': athlete.is_active ? 'ACTIF' : 'INACTIF'
-                };
+                return [
+                    athlete.last_name.toUpperCase(),
+                    athlete.first_name,
+                    athlete.gender === 'male' ? 'M' : 'F',
+                    birthDate.toLocaleDateString('fr-FR'),
+                    birthYear,
+                    category,
+                    athlete.belt_level
+                ];
             });
+
+            // Add header row
+            const headerData = [
+                ['NOM', 'PRENOM', 'SEXE', 'DATE NAISSANCE', 'ANNEE', 'CATEGORIE', 'GRADE'],
+                ...exportData
+            ];
 
             // Create workbook and worksheet
             const wb = XLSX.utils.book_new();
-            const ws = XLSX.utils.json_to_sheet(exportData);
+            const ws = XLSX.utils.aoa_to_sheet(headerData);
 
-            // Set column widths
+            // Set column widths to match your format
             const colWidths = [
-                { wch: 5 },  // N°
                 { wch: 20 }, // NOM
                 { wch: 15 }, // PRENOM
                 { wch: 6 },  // SEXE
-                { wch: 15 }, // DATE DE NAISSANCE
+                { wch: 15 }, // DATE NAISSANCE
                 { wch: 8 },  // ANNEE
-                { wch: 6 },  // AGE
                 { wch: 15 }, // CATEGORIE
-                { wch: 15 }, // GRADE
-                { wch: 25 }, // CLUB
-                { wch: 15 }, // VILLE
-                { wch: 15 }, // TELEPHONE
-                { wch: 20 }, // TELEPHONE PARENT
-                { wch: 30 }, // ADRESSE
-                { wch: 10 }  // STATUT
+                { wch: 15 }  // GRADE
             ];
             ws['!cols'] = colWidths;
+
+            // Add some basic styling to header
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let col = range.s.c; col <= range.e.c; col++) {
+                const headerCell = XLSX.utils.encode_cell({ r: 0, c: col });
+                if (!ws[headerCell]) continue;
+                ws[headerCell].s = {
+                    font: { bold: true },
+                    fill: { fgColor: { rgb: "CCCCCC" } }
+                };
+            }
 
             // Add worksheet to workbook
             XLSX.utils.book_append_sheet(wb, ws, 'Athletes');
 
             // Generate filename with current date
             const today = new Date().toISOString().split('T')[0];
-            const filename = `Galia_Club_Athletes_${today}.xlsx`;
+            const filename = `Athletes_${today}.xlsx`;
 
             // Save the file
             XLSX.writeFile(wb, filename);
