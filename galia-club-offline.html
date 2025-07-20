@@ -837,7 +837,176 @@
                 case 'payments':
                     loadPayments();
                     break;
+                case 'categories':
+                    loadCategories();
+                    break;
             }
+        }
+
+        // Age Category Functions
+        function calculateCategory(birthDate) {
+            const birthYear = new Date(birthDate).getFullYear();
+            
+            if (birthYear === 2017 || birthYear === 2018) {
+                return "Poussin";
+            } else if (birthYear === 2015 || birthYear === 2016) {
+                return "Pupille";
+            } else if (birthYear === 2013 || birthYear === 2014) {
+                return "Benjamin(e)";
+            } else if (birthYear === 2011 || birthYear === 2012) {
+                return "Minim(e)";
+            } else if (birthYear === 2009 || birthYear === 2010) {
+                return "Cadet(e)";
+            } else if (birthYear === 2007 || birthYear === 2008) {
+                return "Junior(e)";
+            } else if (birthYear <= 2006) {
+                return "Senior(e)";
+            } else {
+                return "غير مصنف"; // Unclassified
+            }
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Poussin': 'bg-blue-100 text-blue-800',
+                'Pupille': 'bg-green-100 text-green-800',
+                'Benjamin(e)': 'bg-yellow-100 text-yellow-800',
+                'Minim(e)': 'bg-orange-100 text-orange-800',
+                'Cadet(e)': 'bg-purple-100 text-purple-800',
+                'Junior(e)': 'bg-indigo-100 text-indigo-800',
+                'Senior(e)': 'bg-red-100 text-red-800',
+                'غير مصنف': 'bg-gray-100 text-gray-800'
+            };
+            return colors[category] || 'bg-gray-100 text-gray-800';
+        }
+
+        function loadCategories() {
+            const athletes = dataManager.getAthletes().filter(a => a.is_active);
+            const tableBody = document.getElementById('categories-table-body');
+            const noAthletes = document.getElementById('no-athletes-categories');
+
+            if (athletes.length === 0) {
+                tableBody.innerHTML = '';
+                noAthletes.classList.remove('hidden');
+            } else {
+                noAthletes.classList.add('hidden');
+                
+                // Sort athletes by category then by name
+                const athletesWithCategories = athletes.map(athlete => ({
+                    ...athlete,
+                    category: calculateCategory(athlete.date_of_birth),
+                    age: Math.floor((new Date() - new Date(athlete.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000)),
+                    birthYear: new Date(athlete.date_of_birth).getFullYear()
+                })).sort((a, b) => {
+                    if (a.category !== b.category) {
+                        return a.category.localeCompare(b.category);
+                    }
+                    return a.first_name.localeCompare(b.first_name);
+                });
+
+                tableBody.innerHTML = athletesWithCategories.map(athlete => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <div class="flex items-center">
+                                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
+                                    <span class="text-red-600 font-semibold">
+                                        ${athlete.first_name[0]}${athlete.last_name[0]}
+                                    </span>
+                                </div>
+                                <div class="ml-4">
+                                    <div class="text-sm font-medium text-gray-900">
+                                        ${athlete.first_name} ${athlete.last_name}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${athlete.birthYear}</td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${athlete.age} years</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getCategoryColor(athlete.category)}">
+                                ${athlete.category}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${athlete.gender}</td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                ${athlete.belt_level}
+                            </span>
+                        </td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        // Export Functions
+        function exportAthletes() {
+            const athletes = dataManager.getAthletes().filter(a => a.is_active);
+            
+            if (athletes.length === 0) {
+                alert('No athletes to export!');
+                return;
+            }
+
+            // Prepare data for Excel export
+            const exportData = athletes.map((athlete, index) => {
+                const category = calculateCategory(athlete.date_of_birth);
+                const age = Math.floor((new Date() - new Date(athlete.date_of_birth)) / (365.25 * 24 * 60 * 60 * 1000));
+                const birthYear = new Date(athlete.date_of_birth).getFullYear();
+                
+                return {
+                    'N°': index + 1,
+                    'NOM': athlete.last_name.toUpperCase(),
+                    'PRENOM': athlete.first_name,
+                    'SEXE': athlete.gender === 'male' ? 'M' : 'F',
+                    'DATE DE NAISSANCE': new Date(athlete.date_of_birth).toLocaleDateString('fr-FR'),
+                    'ANNEE': birthYear,
+                    'AGE': age,
+                    'CATEGORIE': category,
+                    'GRADE': athlete.belt_level,
+                    'CLUB': 'GALIA CLUB AIN SEFRA',
+                    'VILLE': 'AIN SEFRA',
+                    'TELEPHONE': athlete.phone || '',
+                    'TELEPHONE PARENT': athlete.parent_phone || '',
+                    'ADRESSE': athlete.address || '',
+                    'STATUT': athlete.is_active ? 'ACTIF' : 'INACTIF'
+                };
+            });
+
+            // Create workbook and worksheet
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(exportData);
+
+            // Set column widths
+            const colWidths = [
+                { wch: 5 },  // N°
+                { wch: 20 }, // NOM
+                { wch: 15 }, // PRENOM
+                { wch: 6 },  // SEXE
+                { wch: 15 }, // DATE DE NAISSANCE
+                { wch: 8 },  // ANNEE
+                { wch: 6 },  // AGE
+                { wch: 15 }, // CATEGORIE
+                { wch: 15 }, // GRADE
+                { wch: 25 }, // CLUB
+                { wch: 15 }, // VILLE
+                { wch: 15 }, // TELEPHONE
+                { wch: 20 }, // TELEPHONE PARENT
+                { wch: 30 }, // ADRESSE
+                { wch: 10 }  // STATUT
+            ];
+            ws['!cols'] = colWidths;
+
+            // Add worksheet to workbook
+            XLSX.utils.book_append_sheet(wb, ws, 'Athletes');
+
+            // Generate filename with current date
+            const today = new Date().toISOString().split('T')[0];
+            const filename = `Galia_Club_Athletes_${today}.xlsx`;
+
+            // Save the file
+            XLSX.writeFile(wb, filename);
+            
+            alert(`Export completed! File saved as: ${filename}\n\nTotal athletes exported: ${athletes.length}`);
         }
 
         // Dashboard Functions
