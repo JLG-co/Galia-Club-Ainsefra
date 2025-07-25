@@ -268,7 +268,8 @@ class KarateClubAPITester:
             athlete_id = self.created_athletes[0]
             group_id = self.created_groups[0]
             
-            response = self.session.post(f"{self.base_url}/groups/{group_id}/add-athlete/{athlete_id}")
+            response = self.session.post(f"{self.base_url}/groups/{group_id}/add-athlete", 
+                                       json={"athlete_id": athlete_id})
             if response.status_code == 200:
                 self.log_test("Add Athlete to Group", True, "Athlete added to group successfully")
                 
