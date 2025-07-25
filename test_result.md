@@ -105,113 +105,28 @@
 user_problem_statement: "Enhanced Galia Club Karate Do Management app with Belt/Rank Progression System. The app includes all existing features plus belt progression tracking, belt tests scheduling, and progression history. Need to test the enhanced backend API and prepare for Windows EXE and Android APK builds."
 
 backend:
-  - task: "Dashboard Stats API"
+  - task: "Enhanced Backend API with Belt Progression System"
     implemented: true
-    working: true
-    file: "backend/server.py"
+    working: false
+    file: "/app/project/backend/server.py"
     stuck_count: 0
     priority: "high"
-    needs_retesting: false
+    needs_retesting: true
     status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ Dashboard API working correctly - returns all required statistics (total_athletes, active_athletes, total_coaches, total_groups, pending_payments, overdue_payments, monthly_revenue, yearly_license_revenue)"
+      - working: false
+        agent: "main"
+        comment: "Enhanced backend with FastAPI, added belt progression system with BeltTest and BeltProgression models, belt level tracking, test scheduling, and progression history. Backend running on port 5001. Need to test all new endpoints."
 
-  - task: "Athletes CRUD Operations"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ All athlete operations working: CREATE (with proper validation), GET all/specific, UPDATE, DELETE (deactivation). Tested with realistic data: Ahmed Benali from Ain Sefra, Algeria"
+test_plan:
+  current_focus:
+    - "Enhanced Backend API with Belt Progression System"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
 
-  - task: "Automatic Payment Generation"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ CRITICAL BUSINESS LOGIC VERIFIED: When athlete is created, system automatically generates 2 payments - Monthly (500 DZD) and Yearly License (300 DZD) with correct due dates"
-
-  - task: "Coaches Management"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ Coach creation and retrieval working correctly. Tested with realistic coach data: Karim Messaoudi, Black Belt 3rd Dan, Kumite specialization"
-
-  - task: "Groups Management"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ Group creation, retrieval, and athlete assignment working. Capacity tracking correctly updates current_count when athletes are added"
-
-  - task: "Group Capacity Limits"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ Group capacity validation working - current_count increments correctly when athletes are added to groups"
-
-  - task: "Payments Management"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ All payment operations working: CREATE manual payments, GET with filtering (by status/athlete), MARK AS PAID, GET OVERDUE payments. Payment amounts correctly set (500 DZD monthly, 300 DZD yearly)"
-
-  - task: "Payment Status Tracking"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "high"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ Payment status updates working correctly - can mark payments as paid, track overdue payments, filter by status"
-
-  - task: "Data Validation and Error Handling"
-    implemented: true
-    working: true
-    file: "backend/server.py"
-    stuck_count: 0
-    priority: "medium"
-    needs_retesting: false
-    status_history:
-      - working: true
-        agent: "testing"
-        comment: "✅ API endpoints handle validation correctly - proper HTTP status codes, error messages for invalid data, foreign key validation (coach exists before creating group)"
+agent_communication:
+  - agent: "main"
+    message: "Enhanced the backend system with belt progression features. Added new models: BeltTest, BeltProgression. Added new endpoints for belt tests, belt progressions, and enhanced dashboard with belt distribution and upcoming tests count. Backend is running on port 5001. Please test all endpoints including the new belt progression functionality."
 
 frontend:
   # Frontend testing not performed as per instructions
