@@ -224,16 +224,23 @@ class KarateClubAPITester:
         try:
             group_data = {
                 "name": "Beginners Group A",
+                "description": "Group for white and yellow belt students",
                 "coach_id": self.created_coaches[0],
-                "max_capacity": 15,
-                "schedule": "Monday, Wednesday, Friday 16:00-17:30"
+                "capacity": 15,  # Updated field name
+                "schedule": "Monday, Wednesday, Friday 16:00-17:30",
+                "age_group": "Children (8-12 years)",
+                "belt_level_range": "White to Yellow"
             }
             
             response = self.session.post(f"{self.base_url}/groups", json=group_data)
             if response.status_code == 200:
-                group = response.json()
-                self.created_groups.append(group['id'])
-                self.log_test("Create Group", True, f"Group created: {group['name']}", group)
+                result = response.json()
+                group_id = result.get('id')
+                if group_id:
+                    self.created_groups.append(group_id)
+                    self.log_test("Create Group", True, f"Group created successfully: {result.get('message', 'Success')}")
+                else:
+                    self.log_test("Create Group", False, "No group ID returned")
             else:
                 self.log_test("Create Group", False, f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
