@@ -449,7 +449,8 @@ class KarateClubAPITester:
         try:
             response = self.session.get(f"{self.base_url}/belt-progressions")
             if response.status_code == 200:
-                self.log_test("GET Belt Progressions Endpoint", True, "Belt progressions endpoint accessible")
+                progressions = response.json()
+                self.log_test("GET Belt Progressions Endpoint", True, f"Belt progressions endpoint accessible, retrieved {len(progressions)} progressions")
             else:
                 self.log_test("GET Belt Progressions Endpoint", False, 
                             f"Belt progressions endpoint not found (HTTP {response.status_code}). Belt progression tracking not implemented.")
@@ -462,7 +463,8 @@ class KarateClubAPITester:
                 athlete_id = self.created_athletes[0]
                 response = self.session.get(f"{self.base_url}/belt-progressions/{athlete_id}")
                 if response.status_code == 200:
-                    self.log_test("GET Athlete Belt History", True, "Athlete belt history endpoint accessible")
+                    history = response.json()
+                    self.log_test("GET Athlete Belt History", True, f"Athlete belt history endpoint accessible, retrieved {len(history)} progression records")
                 else:
                     self.log_test("GET Athlete Belt History", False, 
                                 f"Athlete belt history not accessible (HTTP {response.status_code}). Individual belt progression tracking not implemented.")
