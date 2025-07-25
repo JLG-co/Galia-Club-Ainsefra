@@ -408,31 +408,40 @@ class KarateClubAPITester:
         try:
             response = self.session.get(f"{self.base_url}/belt-tests")
             if response.status_code == 200:
-                self.log_test("GET Belt Tests Endpoint", True, "Belt tests endpoint accessible")
+                belt_tests = response.json()
+                self.log_test("GET Belt Tests Endpoint", True, f"Belt tests endpoint accessible, retrieved {len(belt_tests)} tests")
             else:
                 self.log_test("GET Belt Tests Endpoint", False, 
                             f"Belt tests endpoint not found (HTTP {response.status_code}). Belt progression system not implemented.")
         except Exception as e:
             self.log_test("GET Belt Tests Endpoint", False, f"Belt tests endpoint not implemented: {str(e)}")
         
-        # Test POST /api/belt-tests (schedule new test)
-        if self.created_athletes:
+        # Test POST /api/belt-tests (schedule new test) - needs examiner_id
+        if self.created_athletes and self.created_coaches:
             try:
                 test_data = {
                     "athlete_id": self.created_athletes[0],
                     "current_belt": "white",
-                    "target_belt": "yellow",
+                    "target_belt": "yellow", 
                     "test_date": "2024-12-20T10:00:00Z",
+                    "examiner_id": self.created_coaches[0],  # Required field
                     "notes": "First belt test"
                 }
                 response = self.session.post(f"{self.base_url}/belt-tests", json=test_data)
                 if response.status_code == 200:
-                    self.log_test("POST Belt Tests - Schedule Test", True, "Belt test scheduled successfully")
+                    result = response.json()
+                    self.log_test("POST Belt Tests - Schedule Test", True, f"Belt test scheduled successfully: {result.get('message', 'Success')}")
+                    # Store test ID for later use
+                    if 'id' in result:
+                        self.created_belt_tests = getattr(self, 'created_belt_tests', [])
+                        self.created_belt_tests.append(result['id'])
                 else:
                     self.log_test("POST Belt Tests - Schedule Test", False, 
-                                f"Cannot schedule belt test (HTTP {response.status_code}). Belt test scheduling not implemented.")
+                                f"Cannot schedule belt test (HTTP {response.status_code}): {response.text}")
             except Exception as e:
                 self.log_test("POST Belt Tests - Schedule Test", False, f"Belt test scheduling not implemented: {str(e)}")
+        else:
+            self.log_test("POST Belt Tests - Schedule Test", False, "No athletes or coaches available for test scheduling")
     
     def test_belt_progressions_endpoints(self):
         """Test belt progressions endpoints"""
