@@ -610,6 +610,11 @@ class KarateClubAPITester:
         self.test_deactivate_athlete()
         print()
         
+        # Test belt progression features
+        self.test_belt_progression_features()
+        self.test_belt_levels_system()
+        print()
+        
         # Summary
         print("=" * 80)
         print("TEST SUMMARY")
