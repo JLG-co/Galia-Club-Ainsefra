@@ -260,7 +260,7 @@ async def get_dashboard():
 async def get_athletes():
     try:
         athletes = await db.athletes.find({"is_active": True}).to_list(length=None)
-        return athletes
+        return serialize_doc(athletes)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -270,7 +270,7 @@ async def get_athlete(athlete_id: str):
         athlete = await db.athletes.find_one({"id": athlete_id, "is_active": True})
         if not athlete:
             raise HTTPException(status_code=404, detail="Athlete not found")
-        return athlete
+        return serialize_doc(athlete)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
