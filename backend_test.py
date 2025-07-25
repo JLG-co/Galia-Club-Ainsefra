@@ -34,6 +34,21 @@ class KarateClubAPITester:
             "data": data
         })
         
+    def test_health_endpoint(self):
+        """Test health check endpoint"""
+        try:
+            response = self.session.get(f"{self.base_url}/health")
+            if response.status_code == 200:
+                health_data = response.json()
+                if health_data.get('status') == 'healthy':
+                    self.log_test("Health Check Endpoint", True, f"Backend is healthy: {health_data.get('service', 'Unknown service')}")
+                else:
+                    self.log_test("Health Check Endpoint", False, f"Backend reports unhealthy status: {health_data}")
+            else:
+                self.log_test("Health Check Endpoint", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_test("Health Check Endpoint", False, f"Exception: {str(e)}")
+    
     def test_dashboard_stats(self):
         """Test dashboard statistics endpoint"""
         try:
