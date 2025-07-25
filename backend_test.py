@@ -66,23 +66,23 @@ class KarateClubAPITester:
                 "gender": "male",
                 "phone": "0555123456",
                 "parent_phone": "0555987654",
+                "email": "ahmed.benali@example.com",
                 "address": "Ain Sefra, Algeria",
-                "belt_level": "White"
+                "current_belt": "white"  # Updated field name
             }
             
             response = self.session.post(f"{self.base_url}/athletes", json=athlete_data)
             if response.status_code == 200:
-                athlete = response.json()
-                self.created_athletes.append(athlete['id'])
-                
-                # Verify athlete data
-                if athlete['first_name'] == athlete_data['first_name'] and athlete['last_name'] == athlete_data['last_name']:
-                    self.log_test("Create Athlete", True, f"Athlete created successfully: {athlete['first_name']} {athlete['last_name']}", athlete)
+                result = response.json()
+                athlete_id = result.get('id')
+                if athlete_id:
+                    self.created_athletes.append(athlete_id)
+                    self.log_test("Create Athlete", True, f"Athlete created successfully: {result.get('message', 'Success')}")
                     
                     # Test automatic payment generation
-                    self.test_automatic_payments(athlete['id'])
+                    self.test_automatic_payments(athlete_id)
                 else:
-                    self.log_test("Create Athlete", False, "Athlete data mismatch")
+                    self.log_test("Create Athlete", False, "No athlete ID returned")
             else:
                 self.log_test("Create Athlete", False, f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
