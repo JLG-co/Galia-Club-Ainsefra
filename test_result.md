@@ -123,7 +123,8 @@ backend:
 test_plan:
   current_focus:
     - "Enhanced Backend API with Belt Progression System"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Enhanced Backend API with Belt Progression System"
   test_all: false
   test_priority: "high_first"
 
