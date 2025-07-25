@@ -11,7 +11,7 @@ import uuid
 import sys
 
 # Get backend URL from environment
-BACKEND_URL = "https://58b0e45b-7849-484e-9537-18623a21a215.preview.emergentagent.com/api"
+BACKEND_URL = "https://ed1e900f-b4f2-48fd-999d-4e979e30eebc.preview.emergentagent.com/api"
 
 class KarateClubAPITester:
     def __init__(self):
