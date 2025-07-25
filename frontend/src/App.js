@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import './App.css';
+import { ThemeProvider } from './contexts/ThemeContext';
+import Header from './components/Header';
+import AthleteForm from './components/AthleteForm';
+import LoadingSpinner from './components/LoadingSpinner';
+import dataManager from './utils/dataManager';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
