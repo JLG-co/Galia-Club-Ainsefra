@@ -473,25 +473,28 @@ class KarateClubAPITester:
     
     def test_belt_progression_workflow(self):
         """Test complete belt progression workflow"""
-        if not self.created_athletes:
-            self.log_test("Belt Progression Workflow", False, "No athletes available for workflow test")
+        if not self.created_athletes or not self.created_coaches:
+            self.log_test("Belt Progression Workflow", False, "No athletes or coaches available for workflow test")
             return
         
         try:
             athlete_id = self.created_athletes[0]
+            examiner_id = self.created_coaches[0]
             
             # Step 1: Schedule a belt test
             test_data = {
                 "athlete_id": athlete_id,
                 "current_belt": "white",
                 "target_belt": "yellow",
-                "test_date": "2024-12-20T10:00:00Z"
+                "test_date": "2024-12-20T10:00:00Z",
+                "examiner_id": examiner_id,  # Required field
+                "notes": "Workflow test belt examination"
             }
             
             test_response = self.session.post(f"{self.base_url}/belt-tests", json=test_data)
             if test_response.status_code != 200:
                 self.log_test("Belt Progression Workflow - Schedule Test", False, 
-                            "Cannot schedule belt test. Belt progression workflow not implemented.")
+                            f"Cannot schedule belt test (HTTP {test_response.status_code}): {test_response.text}")
                 return
             
             test_result = test_response.json()
@@ -501,46 +504,54 @@ class KarateClubAPITester:
                 self.log_test("Belt Progression Workflow - Test ID", False, "No test ID returned from belt test creation")
                 return
             
-            # Step 2: Mark test as passed
-            result_data = {
-                "result": "passed",
-                "score": 85,
-                "notes": "Good performance"
-            }
+            self.log_test("Belt Progression Workflow - Schedule Test", True, f"Belt test scheduled with ID: {test_id}")
             
-            result_response = self.session.put(f"{self.base_url}/belt-tests/{test_id}/result", json=result_data)
+            # Step 2: Mark test as passed using PUT /api/belt-tests/{test_id}/result
+            result_response = self.session.put(f"{self.base_url}/belt-tests/{test_id}/result", 
+                                             params={"status": "passed", "score": 85, "notes": "Excellent performance"})
             if result_response.status_code != 200:
                 self.log_test("Belt Progression Workflow - Update Result", False, 
-                            "Cannot update belt test result. Result processing not implemented.")
+                            f"Cannot update belt test result (HTTP {result_response.status_code}): {result_response.text}")
                 return
+            
+            self.log_test("Belt Progression Workflow - Update Result", True, "Belt test result updated successfully")
             
             # Step 3: Verify athlete's belt was updated
             athlete_response = self.session.get(f"{self.base_url}/athletes/{athlete_id}")
             if athlete_response.status_code == 200:
                 athlete = athlete_response.json()
-                if athlete.get('current_belt') == 'yellow' or athlete.get('belt_level') == 'Yellow':
+                current_belt = athlete.get('current_belt', athlete.get('belt_level', ''))
+                if current_belt.lower() == 'yellow':
                     self.log_test("Belt Progression Workflow - Auto Belt Update", True, 
-                                "Athlete belt automatically updated after passing test")
+                                f"Athlete belt automatically updated to: {current_belt}")
                 else:
                     self.log_test("Belt Progression Workflow - Auto Belt Update", False, 
-                                "Athlete belt not automatically updated after passing test")
+                                f"Athlete belt not updated correctly. Current: {current_belt}, Expected: yellow")
+            else:
+                self.log_test("Belt Progression Workflow - Auto Belt Update", False, 
+                            f"Cannot verify athlete belt update (HTTP {athlete_response.status_code})")
             
             # Step 4: Verify belt progression record was created
             progression_response = self.session.get(f"{self.base_url}/belt-progressions/{athlete_id}")
             if progression_response.status_code == 200:
                 progressions = progression_response.json()
                 if progressions and len(progressions) > 0:
-                    self.log_test("Belt Progression Workflow - Auto Progression Record", True, 
-                                "Belt progression record automatically created")
+                    latest_progression = progressions[-1] if isinstance(progressions, list) else progressions
+                    if latest_progression.get('to_belt', '').lower() == 'yellow':
+                        self.log_test("Belt Progression Workflow - Auto Progression Record", True, 
+                                    f"Belt progression record created: {latest_progression.get('from_belt', 'unknown')} → {latest_progression.get('to_belt', 'unknown')}")
+                    else:
+                        self.log_test("Belt Progression Workflow - Auto Progression Record", False, 
+                                    "Belt progression record created but with incorrect data")
                 else:
                     self.log_test("Belt Progression Workflow - Auto Progression Record", False, 
                                 "No belt progression record created automatically")
             else:
                 self.log_test("Belt Progression Workflow - Auto Progression Record", False, 
-                            "Cannot verify belt progression record creation")
+                            f"Cannot verify belt progression record creation (HTTP {progression_response.status_code})")
                 
         except Exception as e:
-            self.log_test("Belt Progression Workflow", False, f"Belt progression workflow not implemented: {str(e)}")
+            self.log_test("Belt Progression Workflow", False, f"Belt progression workflow error: {str(e)}")
     
     def test_belt_levels_system(self):
         """Test belt levels system"""
