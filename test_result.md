@@ -102,7 +102,7 @@
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
 
-user_problem_statement: "Test the complete backend API for the Galia Club Ain Sefra karate management system including dashboard stats, athletes management, coaches management, groups management, and payments management with focus on business logic validation."
+user_problem_statement: "Enhanced Galia Club Karate Do Management app with Belt/Rank Progression System. The app includes all existing features plus belt progression tracking, belt tests scheduling, and progression history. Need to test the enhanced backend API and prepare for Windows EXE and Android APK builds."
 
 backend:
   - task: "Dashboard Stats API"
