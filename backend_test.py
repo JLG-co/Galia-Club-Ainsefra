@@ -356,7 +356,7 @@ class KarateClubAPITester:
             payment_id = self.created_payments[0]
             
         try:
-            response = self.session.put(f"{self.base_url}/payments/{payment_id}/pay")
+            response = self.session.put(f"{self.base_url}/payments/{payment_id}/mark-paid")  # Updated endpoint
             if response.status_code == 200:
                 self.log_test("Mark Payment as Paid", True, "Payment marked as paid successfully")
             else:
