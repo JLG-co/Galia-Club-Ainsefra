@@ -627,6 +627,10 @@ class KarateClubAPITester:
         print()
         
         # Test sequence following the business flow
+        print("🏥 Starting Health Check...")
+        self.test_health_endpoint()
+        print()
+        
         print("🏁 Starting Dashboard Tests...")
         self.test_dashboard_stats()
         print()
