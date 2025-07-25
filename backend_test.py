@@ -183,16 +183,21 @@ class KarateClubAPITester:
                 "first_name": "Karim",
                 "last_name": "Messaoudi",
                 "phone": "0555111222",
+                "email": "karim.messaoudi@galiaclub.dz",
                 "specialization": "Kumite",
-                "experience_years": 8,
-                "belt_level": "Black Belt 3rd Dan"
+                "years_experience": 8,
+                "belt_level": "black_3rd"  # Updated to use enum value
             }
             
             response = self.session.post(f"{self.base_url}/coaches", json=coach_data)
             if response.status_code == 200:
-                coach = response.json()
-                self.created_coaches.append(coach['id'])
-                self.log_test("Create Coach", True, f"Coach created: {coach['first_name']} {coach['last_name']}", coach)
+                result = response.json()
+                coach_id = result.get('id')
+                if coach_id:
+                    self.created_coaches.append(coach_id)
+                    self.log_test("Create Coach", True, f"Coach created successfully: {result.get('message', 'Success')}")
+                else:
+                    self.log_test("Create Coach", False, "No coach ID returned")
             else:
                 self.log_test("Create Coach", False, f"HTTP {response.status_code}: {response.text}")
         except Exception as e:
